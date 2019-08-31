@@ -3,6 +3,8 @@
 //#define Matrix(i,j) matrix[i][j-i-1]
 #define Matrix(i,j) (j>i) ? matrix[i][j-i-1] : matrix[j][i-j-1]
 #include <string.h>
+#include <time.h>
+
 /*
 int
 main (){
@@ -24,6 +26,7 @@ typedef struct node
 //Globais pro arquivo
 unsigned v_number_global;
 FILE *fp;
+long unsigned array_number =0;
 //Globais pro projeto
 
 //Estruturas de dados 
@@ -54,6 +57,9 @@ unsigned**  bfs_matrix(char** matrix, unsigned index);
 unsigned shortest_path(unsigned v2,unsigned* marking);
 unsigned diameter_list(IntNode** list);
 unsigned diameter_matrix(char** matrix);
+unsigned* degree_find_matrix(char** matrix);
+unsigned* degree_find_list(IntNode** list);
+
 
 int main (int argc,char** argv ){
     char s[50];
@@ -69,6 +75,12 @@ int main (int argc,char** argv ){
     unsigned index;
     unsigned** bfs_return;
     unsigned v;
+
+    clock_t start,end;
+    double bfs_list_t;
+    double bfs_matrix_t;
+    double diameter_list_t;
+    double diameter_matrix_t;
     while(--argc>0 && (*++argv)[0] == '-'){
         while (c = *++argv[0]){
             switch (c)
@@ -76,7 +88,7 @@ int main (int argc,char** argv ){
             case 'm':
                 state =0;
                 matrix= readMatrix(v_number_global);
-                print_matrix(matrix);
+                //print_matrix(matrix);
                 break;
             case 'l':
                 state =1;
@@ -84,7 +96,8 @@ int main (int argc,char** argv ){
                 print_list_int(list);
                 break;
             default:
-                printf("Eroor data structure not privided");
+                printf("Invalid argument");
+                exit(1);
                 break;
             }
         }
@@ -98,7 +111,11 @@ int main (int argc,char** argv ){
             case 'b':
                 printf("Insert the start vertex: ");
                 scanf("%u", &index);
+                start = clock();
                 bfs_matrix(matrix,index);
+                end = clock();
+                bfs_matrix_t = ((double) (end - start)) / CLOCKS_PER_SEC;
+                printf("Tempo da bfs %f \n" ,bfs_matrix_t);
                 break;
             case 's':
                 printf("Insert the start vertex and the last vertex: ");
@@ -118,7 +135,12 @@ int main (int argc,char** argv ){
             {
             case 'b':
                 printf("Insert the start vertex: ");
+                scanf("%u", &index);
+                start = clock();
                 bfs_list(list,index);
+                end = clock();
+                bfs_matrix_t = ((double) (end - start)) / CLOCKS_PER_SEC;
+                printf("Tempo da bfs %f \n" ,bfs_matrix_t);
                 break;
             case 's':
                 printf("Insert the start vertex and the last vertex: ");
@@ -140,10 +162,102 @@ int main (int argc,char** argv ){
     fclose(fp);
     FILE* out;
     out = fopen("output","w");
-    fprintf(out,"Number of Vertices : %d \n",v_number_global);
+    fprintf(out,"Number of Vertices : %u \n",v_number_global);
+    fprintf(out,"Number of Edges : %lu \n",array_number);
+    unsigned* degree;
+    if(state){
+         degree = degree_find_list(list);
+         fprintf(out,"Minimal Degree : %u \n",degree[0]);
+         fprintf(out,"Maximal Degree : %u \n",degree[v_number_global-1]);
+         /*
+        for ( unsigned i = 0; i < v_number_global; i++)
+        {
+            printf("%u ,", degree[i]);
+        }
+        */
+         if(v_number_global%2){
+             fprintf(out,"median : %u \n",degree[v_number_global/2]);
+         }else{
+             unsigned median;
+             median = (degree[v_number_global/2] + degree[v_number_global/2 -1])/2;
+             fprintf(out,"median : %u \n",median);
+
+         }
+    }else{
+        degree =degree_find_matrix(matrix);
+        fprintf(out,"Minimal Degree : %u \n",degree[0]);
+        fprintf(out,"Maximal Degree : %u \n",degree[v_number_global-1]);
+        if(v_number_global%2){
+            fprintf(out,"median : %u \n",degree[v_number_global/2]);
+        }else{
+            unsigned median;
+            median = (degree[v_number_global/2] + degree[v_number_global/2 -1])/2;
+            fprintf(out,"median : %u \n",median);
+        }
+    }
     fclose(out);
+    free(matrix);
+    free(list);//mudar que so livra o array
     return 0;
     
+}
+
+
+unsigned* degree_find_matrix(char** matrix){
+    unsigned* degree_array;
+    if((degree_array = (unsigned * )malloc(sizeof(unsigned)*v_number_global)) == NULL){
+        printf("Out of memory");
+        exit(1);
+    }
+    unsigned degree;
+    for(unsigned j = 0; j<v_number_global; j++){
+        degree =0;
+            for(unsigned i =0 ; i< j; i++){
+                if((Matrix(i,j)) == 1){
+                    degree++;
+                }
+            }
+            for(unsigned i =(j+1); i< v_number_global;i++){
+                if((Matrix(j,i)) == 1){
+                    degree++;
+                }
+            }
+        degree_array[j] = degree;
+    }
+    int cmpfunc (const void * a, const void * b);
+    qsort(degree_array,v_number_global,sizeof(unsigned),cmpfunc);
+    return degree_array;
+}
+
+unsigned* degree_find_list(IntNode** list){
+    unsigned* degree_array;
+    unsigned degree;
+    IntNode* linked_list;
+    if((degree_array = (unsigned * )malloc(sizeof(unsigned)*v_number_global)) == NULL){
+        printf("Out of memory");
+        exit(1);
+    }
+    for(unsigned i =0; i< v_number_global; i++){
+        degree =0;
+        linked_list= list[i];
+        while (linked_list!= NULL){
+            linked_list = linked_list->next;
+            degree++;
+        }
+        degree_array[i] =degree;
+    }
+    int cmpfunc (const void * a, const void * b);
+    qsort(degree_array,v_number_global,sizeof(unsigned),cmpfunc);
+    return degree_array;
+}
+
+int cmpfunc (const void * a, const void * b){
+        unsigned ai = *( unsigned* )a;
+        unsigned bi = *( unsigned* )b;
+        int r;
+        r = (ai<bi) ? -1 :  1;
+        return r;
+        
 }
 
 
@@ -170,6 +284,7 @@ char** readMatrix(unsigned long v_number){
     while((fscanf(fp,"%u %u",&a,&b)) != EOF){
        // printf("a= %d b = %d\n",a,b);
         (a<=b) ? (p[a][b-a-1] =1 ) : (p[b][a-b-1]=1); 
+        array_number++;
             
     }
     return p;
@@ -223,6 +338,7 @@ IntNode** read_list_int(unsigned long v_number){
         //printf("Fazendo a %d  e b %d \n",a,b);
         p[a] = put_inode(p[a],b);
         p[b] = put_inode(p[b],a);
+        array_number++;
         //printf("Index %d ",a);
         //print_list_int(p[a]);
         //printf("Index %d ",b);
@@ -455,6 +571,7 @@ unsigned** bfs_matrix(char** matrix, unsigned index){
             }
         }   
     }
+    /*
     printf("Vetor de marcação [ \n");
     for(unsigned i =0; i< v_number_global;i++)
         printf("index:%u marcado:%u \n", i, marking[i]);
@@ -463,6 +580,7 @@ unsigned** bfs_matrix(char** matrix, unsigned index){
     for(unsigned i =0; i< v_number_global;i++)
         printf("index:%u marcado:%u \n", i, level[i]);
     printf("]\n");
+    */
     unsigned** array;
     if((array = (unsigned ** ) malloc(v_number_global*sizeof(unsigned)*2)) == NULL){
         printf("Out of memory");

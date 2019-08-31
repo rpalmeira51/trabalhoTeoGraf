@@ -124,6 +124,15 @@ unsigned max_array(unsigned* array){
         max = (*p>max) ? *p :max;
     return max;
 }
+//Código do R&K C_Programming segunda edição modificado
+int cmpfunc (const void * a, const void * b){
+        unsigned ai = *( unsigned* )a;
+        unsigned bi = *( unsigned* )b;
+        int r;
+        r = (ai<bi) ? -1 :  1;
+        return r;
+        
+}
 
 int main (){
     /*
@@ -135,15 +144,18 @@ int main (){
     unsigned array[10] = {1,2,4,5,6,8,20,90,44};
     unsigned m = max_array(array);
     printf(" olha o max %d \n",m);*/
-    FILE *fp;
-    char s[50];
-    printf("Input the name of the file: ");
-    scanf("%s",s);
-    fp=fopen(s, "r");
-    int d;
-    fscanf(fp,"%d",&d);
-    printf("Olha o d ai %d \n",d);
+    unsigned array[100];
+    for(int i =0; i< 100; i++){
+        array[i] = rand()%100;
+    }
 
+    int cmpfunc (const void * a, const void * b);
+
+    qsort(array,100,sizeof(unsigned),cmpfunc);
+    printf("[ ");
+    for (int i =0; i<100;i++)
+        printf("%u, ", array[i]);
+    printf("]\n");
     /*
     IntNode v = {
         3,
