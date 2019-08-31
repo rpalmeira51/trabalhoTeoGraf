@@ -13,12 +13,14 @@ main (){
     printf("size_t %ld\n", sizeof(b));
     printf("long %ld\n", sizeof(c));
 }
-*/
 typedef struct node
 {
     struct node** value; //Aponta para a posição do elemento no array
     struct node* next; //Aponta para o próximo elemento da lista
 } PointerNode;
+*/
+unsigned long v_number_global;
+
 
 typedef struct int_node
 {
@@ -28,33 +30,78 @@ typedef struct int_node
 
 } IntNode;
 
+typedef struct queue
+{
+    IntNode* rear;
+    IntNode* top;
+} Queue;
+
+// Dá pop na pilha
+IntNode queue_pop(Queue* q){
+    IntNode* p_v;
+    IntNode vertice;
+    p_v = q->top;
+    q->top = p_v->next;
+    vertice = *(p_v);
+    free(p_v);
+    return (vertice);
+}
+void queue_push(Queue* q, IntNode v){
+    IntNode* last = q->rear;
+    IntNode* new_pointer;
+    if (new_pointer = (IntNode *) malloc(sizeof(IntNode))){
+        new_pointer->value = v.value;
+        new_pointer->next = NULL;
+        last->next = new_pointer;
+        return new_pointer;
+    }
+    
+}
+
 char** readMatrix(unsigned long v_number);
 
 IntNode** read_list_int(unsigned long v_number);
-void print_list_int(IntNode* p);
+void print_list_int(IntNode** p);
+void print_matrix(char** matrix);
+
 
 
 int main (int argc,char** argv ){
-    unsigned long v_number;
-    scanf("%lu", &v_number);
-    printf("%lu\n",v_number);
-    //char** matrix = readMatrix(v_number);
-    /*
-    for (int i= 0;  i< v_number; i++){
-        for(int j = (i+1); j< v_number;j++ ){ 
-            printf("linha %d coluna %d %i \n",i,j,Matrix(i,j));}
-    } 
-    */
-    IntNode** list = read_list_int(v_number);
-    IntNode* p;
-    printf("[ \n");
-    for(int i = 0; i<v_number; i++){
-       printf("%d - > ",i);
-       print_list_int(list[i]);
+    
+    scanf("%lu", &v_number_global);
+    printf("%lu\n",v_number_global);
+    int c;
+    char** matrix;
+    IntNode** list;
+    while(--argc>0 && (*++argv)[0] == '-'){
+        while (c = *++argv[0]){
+            switch (c)
+            {
+            case 'm':
+                matrix= readMatrix(v_number_global);
+                print_matrix(matrix);
+                break;
+            case 'l':
+                list = read_list_int(v_number_global);
+                print_list_int(list);
+                break;
+            default:
+                printf("Eroor data structure not privided");
+                break;
+            }
+        }
     }
-    printf("] ");
+    
     
     return 0;
+}
+
+
+void print_matrix(char** matrix){
+    for (unsigned i= 0;  i< v_number_global; i++){
+        for(unsigned j = (i+1); j< v_number_global;j++ ){ 
+            printf("linha %d coluna %d %i \n",i,j,Matrix(i,j));}
+    } 
 }
 
 char** readMatrix(unsigned long v_number){
@@ -65,7 +112,7 @@ char** readMatrix(unsigned long v_number){
         exit(1);
     }
 
-    for(int i = 1; i<=(v_number) ; i++){
+    for(unsigned i = 1; i<=(v_number) ; i++){
         p[i-1] = (char *) calloc((v_number-i), sizeof(char));
         //printf("Flag %d \n" ,p[i][1]);
     }
@@ -79,13 +126,22 @@ char** readMatrix(unsigned long v_number){
 
 }
 
-void print_list_int(IntNode* p){
-    printf("Lista ->  ");
-    while (p!= NULL){
-        printf("%d ", p->value);
-        p = p->next;
+
+
+void print_list_int(IntNode** list){
+    IntNode* index;
+    unsigned int i;
+    printf("Lista ->[\n");
+    for (i =0; i<v_number_global; i++ ){
+        printf("Index %d ->  ",i);
+        index = list[i];
+        while (index!= NULL){
+            printf("%d ", index->value);
+            index = index->next;
+        }
+        printf("\n");
     }
-    printf("\n");
+    printf("] \n");
 
 }
 
@@ -107,24 +163,20 @@ IntNode* put_inode(IntNode* p ,unsigned int value){
 
 IntNode** read_list_int(unsigned long v_number){
     IntNode** p;
-    p = (IntNode **) calloc(v_number,sizeof(IntNode *)*v_number);
+    p = (IntNode **) calloc(v_number,sizeof(IntNode *));
     IntNode** pointer;
     unsigned int a,b;
     while((fscanf(stdin,"%d %d",&a,&b)) != EOF){
-        printf("Fazendo a %d  e b %d \n",a,b);
+        //printf("Fazendo a %d  e b %d \n",a,b);
         p[a] = put_inode(p[a],b);
         p[b] = put_inode(p[b],a);
-        printf("Index %d ",a);
-        print_list_int(p[a]);
-        printf("Index %d ",b);
-        print_list_int(p[b]);
+        //printf("Index %d ",a);
+        //print_list_int(p[a]);
+        //printf("Index %d ",b);
+        //print_list_int(p[b]);
         //printf("Atualmente p[a] : %u e p[b]: %u \n", p[a]->value,p[b]->value);        
     }
     
     return p;
 }
-/*
-PointerNode** read_list_pointer(unsigned long v_number){
-    
-}
-*/
+
