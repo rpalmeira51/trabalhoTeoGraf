@@ -51,6 +51,9 @@ void print_list_int(IntNode** p);
 void print_matrix(char** matrix);
 unsigned**  bfs_list(IntNode** list, unsigned index);
 unsigned**  bfs_matrix(char** matrix, unsigned index);
+unsigned shortest_path(unsigned v2,unsigned* marking);
+unsigned diameter_list(IntNode** list);
+unsigned diameter_matrix(char** matrix);
 
 int main (int argc,char** argv ){
     
@@ -60,6 +63,7 @@ int main (int argc,char** argv ){
     char** matrix;
     IntNode** list;
     int index = 2;
+    unsigned** bfs_return;
     while(--argc>0 && (*++argv)[0] == '-'){
         while (c = *++argv[0]){
             switch (c)
@@ -67,12 +71,16 @@ int main (int argc,char** argv ){
             case 'm':
                 matrix= readMatrix(v_number_global);
                 print_matrix(matrix);
-                bfs_matrix(matrix,index);
+                bfs_return = bfs_matrix(matrix,index);
+                shortest_path(6,bfs_return[0]);
+                diameter_matrix(matrix);
                 break;
             case 'l':
                 list = read_list_int(v_number_global);
                 print_list_int(list);
-                bfs_list(list,index);
+                bfs_return = bfs_list(list,index);
+                shortest_path(1,bfs_return[0]);
+                diameter_list(list);
                 break;
             default:
                 printf("Eroor data structure not privided");
@@ -213,18 +221,57 @@ void print_queue(Queue* q){
 }
 
 //Menor caminho de v1 até v2 pelo vetor de marcaçãp
-unsigned shortest_path(unsigned v1, unsigned v2,unsigned* marking){
-    unsigned d;
-    while (marking[v2] != ~(0x1)){
-        marking[v2] = marking[marking[v2]];
-        d++;
-        if(marking[v2] == ~(0x0)){
+unsigned shortest_path(unsigned v2,unsigned* marking){
+    unsigned d=0;
+    unsigned first = ~(0x1);
+    unsigned none = ~(0x0);
+    while (marking[v2] != first){
+        if(marking[v2] == none){
             printf("There is no shortest path\n");
             return 0;
         }
+        marking[v2] = marking[marking[v2]];
+        d++;
     }
-    printf("%u",d);
+    printf("%u\n",d);
     return d;
+}
+
+unsigned max_array(unsigned* array){
+    unsigned* p ;
+    register unsigned max = 0;
+    for(p = array; p< (array + v_number_global); p++) 
+        max = (*p>max) ? *p :max;
+    return max;
+}
+
+unsigned diameter_list(IntNode** list){
+    unsigned none = ~(0x0);
+    unsigned d = 0;
+    unsigned* level;
+    unsigned max_graph =0;
+    unsigned max =0 ;
+    for(unsigned i =0; i< v_number_global; i++){
+        level = (bfs_list(list,i))[1];
+        max = max_array(level);
+        max_graph = (max_graph<max) ? max: max_graph;
+    }
+    printf("diameter %d\n",max_graph);
+    return max_graph;
+}
+
+unsigned diameter_matrix(char** matrix){
+    unsigned d = 0;
+    unsigned* level;
+    unsigned max_graph =0;
+    unsigned max =0 ;
+    for(unsigned i =0; i< v_number_global; i++){
+        level = (bfs_matrix(matrix,i))[1];
+        max = max_array(level);
+        max_graph = (max_graph<max) ? max: max_graph;
+    }
+    printf("diameter %d\n",max_graph);
+    return max_graph;
 
 }
 
@@ -241,7 +288,7 @@ unsigned** bfs_list(IntNode** list, unsigned index){
         exit(1);
         //return 1;
     } 
-    if((level = (unsigned * ) calloc(v_number_global,sizeof(unsigned))) == NULL){
+    if((level = (unsigned * ) malloc(v_number_global*sizeof(unsigned))) == NULL){
         printf("Out of memory");
         exit(1);
         //return 1;
@@ -252,6 +299,7 @@ unsigned** bfs_list(IntNode** list, unsigned index){
     };
     for (unsigned i =0; i<v_number_global; i++){
         marking[i] = none;
+        level[i] = none;
     }
     marking[index] = explored;
     level[index] =0;
@@ -286,7 +334,13 @@ unsigned** bfs_list(IntNode** list, unsigned index){
         printf("index:%u marcado:%u \n", i, level[i]);
     }
     printf("]\n");
-    unsigned* array[2] = {marking, level};
+    unsigned** array;
+    if((array = (unsigned ** ) malloc(v_number_global*sizeof(unsigned)*2)) == NULL){
+        printf("Out of memory");
+        exit(1);
+    } 
+    array[0]=  marking; 
+    array[1]=  level;
     return array;
     
 };
@@ -304,7 +358,7 @@ unsigned** bfs_matrix(char** matrix, unsigned index){
         exit(1);
         //return 1;
     } 
-    if((level = (unsigned * ) calloc(v_number_global,sizeof(unsigned))) == NULL){
+    if((level = (unsigned * ) malloc(v_number_global*sizeof(unsigned))) == NULL){
         printf("Out of memory");
         exit(1);
         //return 1;
@@ -315,8 +369,8 @@ unsigned** bfs_matrix(char** matrix, unsigned index){
     };
     for (unsigned i =0; i<v_number_global; i++){
         marking[i] = none;
+        level[i] = none;
     }
-
     marking[index] = explored;
     level[index] =0;
     queue_push(&q,index);
@@ -353,7 +407,13 @@ unsigned** bfs_matrix(char** matrix, unsigned index){
     for(unsigned i =0; i< v_number_global;i++)
         printf("index:%u marcado:%u \n", i, level[i]);
     printf("]\n");
-    unsigned* array[2] = {marking, level};
+    unsigned** array;
+    if((array = (unsigned ** ) malloc(v_number_global*sizeof(unsigned)*2)) == NULL){
+        printf("Out of memory");
+        exit(1);
+    } 
+    array[0]=  marking; 
+    array[1]=  level;
     return array;
     
 }

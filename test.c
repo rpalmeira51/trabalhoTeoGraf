@@ -116,11 +116,25 @@ void print_queue(Queue* q){
     };
 
 }
+unsigned v_number_global;
+unsigned max_array(unsigned* array){
+    unsigned* p ;
+    unsigned max = 0;
+    for(p = array; p< (array + v_number_global); p++) 
+        max = (*p>max) ? *p :max;
+    return max;
+}
+
 int main (){
     Queue q = {
         NULL,
         NULL
     };
+    v_number_global = 10;
+    unsigned array[10] = {1,2,4,5,6,8,20,90,44};
+    unsigned m = max_array(array);
+    printf(" olha o max %d \n",m);
+
     /*
     IntNode v = {
         3,
