@@ -126,6 +126,7 @@ unsigned max_array(unsigned* array){
 }
 
 int main (){
+    /*
     Queue q = {
         NULL,
         NULL
@@ -133,7 +134,15 @@ int main (){
     v_number_global = 10;
     unsigned array[10] = {1,2,4,5,6,8,20,90,44};
     unsigned m = max_array(array);
-    printf(" olha o max %d \n",m);
+    printf(" olha o max %d \n",m);*/
+    FILE *fp;
+    char s[50];
+    printf("Input the name of the file: ");
+    scanf("%s",s);
+    fp=fopen(s, "r");
+    int d;
+    fscanf(fp,"%d",&d);
+    printf("Olha o d ai %d \n",d);
 
     /*
     IntNode v = {
@@ -158,11 +167,11 @@ int main (){
     return 0;
     unsigned v =3;
     queue_push(&q, 3);
-    */
+    
     unsigned v=3;
     v = 4;
     queue_push(&q, v);
-    /*
+    
     v= 5;
     queue_push(&q, v);
     v = 6;

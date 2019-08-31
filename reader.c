@@ -2,7 +2,7 @@
 #include <stdlib.h>
 //#define Matrix(i,j) matrix[i][j-i-1]
 #define Matrix(i,j) (j>i) ? matrix[i][j-i-1] : matrix[j][i-j-1]
-
+#include <string.h>
 /*
 int
 main (){
@@ -22,8 +22,8 @@ typedef struct node
 */
 
 //Globais pro arquivo
-unsigned long v_number_global;
-
+unsigned v_number_global;
+FILE *fp;
 //Globais pro projeto
 
 //Estruturas de dados 
@@ -56,31 +56,32 @@ unsigned diameter_list(IntNode** list);
 unsigned diameter_matrix(char** matrix);
 
 int main (int argc,char** argv ){
-    
-    scanf("%lu", &v_number_global);
-    printf("%lu\n",v_number_global);
+    char s[50];
+    char state;
+    printf("Input the name of the file: ");
+    scanf("%s",s);
+    fp=fopen(s, "r");
+    fscanf(fp,"%u", &v_number_global);
+    printf("%u\n",v_number_global);
     int c;
     char** matrix;
     IntNode** list;
-    int index = 2;
+    unsigned index;
     unsigned** bfs_return;
+    unsigned v;
     while(--argc>0 && (*++argv)[0] == '-'){
         while (c = *++argv[0]){
             switch (c)
             {
             case 'm':
+                state =0;
                 matrix= readMatrix(v_number_global);
                 print_matrix(matrix);
-                bfs_return = bfs_matrix(matrix,index);
-                shortest_path(6,bfs_return[0]);
-                diameter_matrix(matrix);
                 break;
             case 'l':
+                state =1;
                 list = read_list_int(v_number_global);
                 print_list_int(list);
-                bfs_return = bfs_list(list,index);
-                shortest_path(1,bfs_return[0]);
-                diameter_list(list);
                 break;
             default:
                 printf("Eroor data structure not privided");
@@ -88,9 +89,61 @@ int main (int argc,char** argv ){
             }
         }
     }
-    
-    
+    printf("Insira o próximo comando ");
+    scanf("%s", s);
+    while(strcmp(s,"exit")){
+        if(!state){
+            switch (s[0])
+            {
+            case 'b':
+                printf("Insert the start vertex: ");
+                scanf("%u", &index);
+                bfs_matrix(matrix,index);
+                break;
+            case 's':
+                printf("Insert the start vertex and the last vertex: ");
+                scanf("%u %u", &index,&v);
+                bfs_return = bfs_matrix(matrix,index);
+                shortest_path(v,bfs_return[0]);
+                break;
+            case 'd':
+                diameter_matrix(matrix);
+                break;
+            default:
+                break;
+            }
+
+        }else{
+            switch (s[0])
+            {
+            case 'b':
+                printf("Insert the start vertex: ");
+                bfs_list(list,index);
+                break;
+            case 's':
+                printf("Insert the start vertex and the last vertex: ");
+                bfs_return = bfs_list(list,index);
+                scanf("%s", s);
+                shortest_path(6,bfs_return[0]);
+                break;
+            case 'd':
+                diameter_list(list);
+                break;
+            default:
+                break;
+            }
+
+        }
+        printf("Insert next command ");
+        scanf("%s", s);
+    };
+    fclose(fp);
+    FILE* out;
+    out = fopen("output","w");
+    fprintf(out,"Number of Vertices : %d \n",v_number_global);
+    fclose(out);
     return 0;
+    
 }
 
 
@@ -114,7 +167,7 @@ char** readMatrix(unsigned long v_number){
         //printf("Flag %d \n" ,p[i][1]);
     }
     int a,b;
-    while((fscanf(stdin,"%d %d",&a,&b)) != EOF){
+    while((fscanf(fp,"%u %u",&a,&b)) != EOF){
        // printf("a= %d b = %d\n",a,b);
         (a<=b) ? (p[a][b-a-1] =1 ) : (p[b][a-b-1]=1); 
             
@@ -123,8 +176,11 @@ char** readMatrix(unsigned long v_number){
 
 }
 
+/*
+void sort_list(IntNode** list){
 
-
+}
+*/
 void print_list_int(IntNode** list){
     IntNode* index;
     unsigned int i;
@@ -163,7 +219,7 @@ IntNode** read_list_int(unsigned long v_number){
     p = (IntNode **) calloc(v_number,sizeof(IntNode *));
     IntNode** pointer;
     unsigned int a,b;
-    while((fscanf(stdin,"%d %d",&a,&b)) != EOF){
+    while((fscanf(fp,"%u %u",&a,&b)) != EOF){
         //printf("Fazendo a %d  e b %d \n",a,b);
         p[a] = put_inode(p[a],b);
         p[b] = put_inode(p[b],a);
