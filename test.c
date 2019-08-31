@@ -33,8 +33,38 @@ typedef struct stack
 }Stack;
 
 
-IntNode stack_pop(Stack* stack){
+IntNode stack_pop(Stack* stack){ 
+    IntNode* v_p;
+    IntNode v;
+    v_p = stack->top;
+    stack->top = v_p->next;
+    v = *(v_p);
+    free(v_p);
+    return v;
+
+}
+
+void stack_push(Stack* stack, IntNode v){
+    IntNode* top = stack->top;
+    IntNode* new_pointer;
+    if (new_pointer = (IntNode *) malloc(sizeof(IntNode))){
+        new_pointer->value = v.value;
+        new_pointer->next = top;
+        stack->top = new_pointer;
+    }
+    else
+    {
+        printf("Fatal error Out of memory");
+        exit(1);
+    }
     
+}
+void print_stack(Stack* stack){
+    IntNode v;
+    while((stack->top) != NULL){
+        v = stack_pop(stack);
+        printf("%d \n",v.value);
+    }
 }
 
 typedef struct queue
@@ -53,6 +83,7 @@ IntNode queue_pop(Queue* q){
     free(p_v);
     return (vertice);
 }
+
 void queue_push(Queue* q, IntNode v){
     IntNode* last = q->rear;
     IntNode* new_pointer;
@@ -69,7 +100,12 @@ void queue_push(Queue* q, IntNode v){
             q->top = new_pointer;
         }
         //return new_pointer;
+    }else
+    {
+        printf("Fatal error Out of memory");
+        exit(1);
     }
+    
     
 }
 void print_queue(Queue* q){
@@ -81,26 +117,26 @@ void print_queue(Queue* q){
 
 }
 int main (){
-    Queue q;
+    Stack q;
     IntNode v = {
         3,
         NULL
     };
-    queue_push(&q, v);
+    stack_push(&q, v);
     v.value = 4;
-    queue_push(&q, v);
+    stack_push(&q, v);
     v.value = 5;
-    queue_push(&q, v);
+    stack_push(&q, v);
     v.value = 6;
-    queue_push(&q, v);
+    stack_push(&q, v);
     v.value = 7;
-    queue_push(&q, v);
+    stack_push(&q, v);
     v.value = 8;
-    queue_push(&q, v);
-    queue_pop(&q);
+    stack_push(&q, v);
+    stack_pop(&q);
     v.value = 9;
-    queue_push(&q, v);
-    print_queue(&q);
+    stack_push(&q, v);
+    print_stack(&q);
     return 0;
 }
 
