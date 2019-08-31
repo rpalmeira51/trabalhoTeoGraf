@@ -1,0 +1,58 @@
+7
+linha 0 coluna 1 0 
+linha 0 coluna 2 1 
+linha 0 coluna 3 0 
+linha 0 coluna 4 1 
+linha 0 coluna 5 1 
+linha 0 coluna 6 1 
+linha 1 coluna 2 0 
+linha 1 coluna 3 0 
+linha 1 coluna 4 1 
+linha 1 coluna 5 1 
+linha 1 coluna 6 1 
+linha 2 coluna 3 0 
+linha 2 coluna 4 1 
+linha 2 coluna 5 0 
+linha 2 coluna 6 1 
+linha 3 coluna 4 0 
+linha 3 coluna 5 0 
+linha 3 coluna 6 0 
+linha 4 coluna 5 1 
+linha 4 coluna 6 0 
+linha 5 coluna 6 0 
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Matrix  
+Vetor de marcação [ 
+index:0 marcado:2 
+index:1 marcado:4 
+index:2 marcado:4294967294 
+index:3 marcado:4294967295 
+index:4 marcado:2 
+index:5 marcado:0 
+index:6 marcado:2 
+]
+Vetor de level [ 
+index:0 marcado:1 
+index:1 marcado:2 
+index:2 marcado:0 
+index:3 marcado:0 
+index:4 marcado:1 
+index:5 marcado:2 
+index:6 marcado:1 
+]

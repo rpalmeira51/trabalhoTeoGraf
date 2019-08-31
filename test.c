@@ -84,18 +84,19 @@ IntNode queue_pop(Queue* q){
     return (vertice);
 }
 
-void queue_push(Queue* q, IntNode v){
+void queue_push(Queue* q, unsigned v){
     IntNode* last = q->rear;
+    printf("%p", (void *) last);
     IntNode* new_pointer;
     if (new_pointer = (IntNode *) malloc(sizeof(IntNode))){
-        if(q->top){
-            new_pointer->value = v.value;
+        if((q->top)){
+            new_pointer->value = v;
             new_pointer->next = NULL;
-            last->next = new_pointer;
-            q->rear = new_pointer;
+            //last->next = new_pointer;
+            //q->rear = new_pointer;
         }else {
-            new_pointer->value = v.value;
-            new_pointer->next = NULL;
+            new_pointer->value = v;
+            new_pointer->next = (NULL);
             q->rear = new_pointer;
             q->top = new_pointer;
         }
@@ -105,7 +106,6 @@ void queue_push(Queue* q, IntNode v){
         printf("Fatal error Out of memory");
         exit(1);
     }
-    
     
 }
 void print_queue(Queue* q){
@@ -117,26 +117,51 @@ void print_queue(Queue* q){
 
 }
 int main (){
-    Stack q;
+    Queue q = {
+        NULL,
+        NULL
+    };
+    /*
     IntNode v = {
         3,
         NULL
     };
-    stack_push(&q, v);
+    queue_push(&q, v);
     v.value = 4;
-    stack_push(&q, v);
+    queue_push(&q, v);
     v.value = 5;
-    stack_push(&q, v);
+    queue_push(&q, v);
     v.value = 6;
-    stack_push(&q, v);
+    queue_push(&q, v);
     v.value = 7;
-    stack_push(&q, v);
+    queue_push(&q, v);
     v.value = 8;
-    stack_push(&q, v);
-    stack_pop(&q);
+    queue_push(&q, v);
+    queue_pop(&q);
     v.value = 9;
-    stack_push(&q, v);
-    print_stack(&q);
+    queue_push(&q, v);
+    print_queue(&q);
+    return 0;
+    unsigned v =3;
+    queue_push(&q, 3);
+    */
+    unsigned v=3;
+    v = 4;
+    queue_push(&q, v);
+    /*
+    v= 5;
+    queue_push(&q, v);
+    v = 6;
+    queue_push(&q, v);
+    v = 7;
+    queue_push(&q, v);
+    v = 8;
+    queue_push(&q, v);
+    queue_pop(&q);
+    v = 9;
+    queue_push(&q, v);
+    print_queue(&q);
+    */
     return 0;
 }
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define Matrix(i,j) matrix[i][j-i-1]
+//#define Matrix(i,j) matrix[i][j-i-1]
+#define Matrix(i,j) (j>i) ? matrix[i][j-i-1] : matrix[j][i-j-1]
 
 /*
 int
@@ -19,9 +20,13 @@ typedef struct node
     struct node* next; //Aponta para o próximo elemento da lista
 } PointerNode;
 */
+
+//Globais pro arquivo
 unsigned long v_number_global;
 
+//Globais pro projeto
 
+//Estruturas de dados 
 typedef struct int_node
 {
     /* data */
@@ -36,35 +41,16 @@ typedef struct queue
     IntNode* top;
 } Queue;
 
-// Dá pop na pilha
-IntNode queue_pop(Queue* q){
-    IntNode* p_v;
-    IntNode vertice;
-    p_v = q->top;
-    q->top = p_v->next;
-    vertice = *(p_v);
-    free(p_v);
-    return (vertice);
-}
-void queue_push(Queue* q, IntNode v){
-    IntNode* last = q->rear;
-    IntNode* new_pointer;
-    if (new_pointer = (IntNode *) malloc(sizeof(IntNode))){
-        new_pointer->value = v.value;
-        new_pointer->next = NULL;
-        last->next = new_pointer;
-        return new_pointer;
-    }
-    
-}
-
+//Prototipos de Funções
+IntNode queue_pop(Queue* q);
+void queue_push(Queue* q, unsigned index);
+void print_queue(Queue* q);
 char** readMatrix(unsigned long v_number);
-
 IntNode** read_list_int(unsigned long v_number);
 void print_list_int(IntNode** p);
 void print_matrix(char** matrix);
-
-
+unsigned**  bfs_list(IntNode** list, unsigned index);
+unsigned**  bfs_matrix(char** matrix, unsigned index);
 
 int main (int argc,char** argv ){
     
@@ -73,6 +59,7 @@ int main (int argc,char** argv ){
     int c;
     char** matrix;
     IntNode** list;
+    int index = 2;
     while(--argc>0 && (*++argv)[0] == '-'){
         while (c = *++argv[0]){
             switch (c)
@@ -80,10 +67,12 @@ int main (int argc,char** argv ){
             case 'm':
                 matrix= readMatrix(v_number_global);
                 print_matrix(matrix);
+                bfs_matrix(matrix,index);
                 break;
             case 'l':
                 list = read_list_int(v_number_global);
                 print_list_int(list);
+                bfs_list(list,index);
                 break;
             default:
                 printf("Eroor data structure not privided");
@@ -180,3 +169,191 @@ IntNode** read_list_int(unsigned long v_number){
     return p;
 }
 
+// Dá pop na pilha
+IntNode queue_pop(Queue* q){
+    IntNode* p_v;
+    IntNode vertice;
+    p_v = q->top;
+    q->top = p_v->next;
+    vertice = *(p_v);
+    free(p_v);
+    return (vertice);
+}
+
+void queue_push(Queue* q, unsigned index){
+    IntNode* last = q->rear;
+    IntNode* new_pointer;
+    if (new_pointer = (IntNode *) malloc(sizeof(IntNode))){
+        if(q->top){
+            new_pointer->value = index;
+            new_pointer->next = NULL;
+            last->next = new_pointer;
+            q->rear = new_pointer;
+        }else {
+            new_pointer->value =index;
+            new_pointer->next = NULL;
+            q->rear = new_pointer;
+            q->top = new_pointer;
+        }
+        //return new_pointer;
+    }else
+    {
+        printf("Fatal error Out of memory");
+        exit(1);
+    }
+    
+    
+}
+void print_queue(Queue* q){
+    IntNode v;
+    while((q->top) != NULL){
+        v = queue_pop(q);
+        printf("%d \n",v.value);
+    };
+}
+
+//Menor caminho de v1 até v2 pelo vetor de marcaçãp
+unsigned shortest_path(unsigned v1, unsigned v2,unsigned* marking){
+    unsigned d;
+    while (marking[v2] != ~(0x1)){
+        marking[v2] = marking[marking[v2]];
+        d++;
+        if(marking[v2] == ~(0x0)){
+            printf("There is no shortest path\n");
+            return 0;
+        }
+    }
+    printf("%u",d);
+    return d;
+
+}
+
+unsigned** bfs_list(IntNode** list, unsigned index){
+    //Define NULL como 2^32
+    //E marcado como (2^32 -1)
+    //tendo em vista que nenhum grafo tem perto de 4 bilhões de vertices, isso não é um problema
+    unsigned* marking;
+    unsigned* level;
+    unsigned none = ~(0x0);
+    unsigned explored = ~(0x1);
+    if((marking = (unsigned * ) malloc(v_number_global*sizeof(unsigned))) == NULL){
+        printf("Out of memory");
+        exit(1);
+        //return 1;
+    } 
+    if((level = (unsigned * ) calloc(v_number_global,sizeof(unsigned))) == NULL){
+        printf("Out of memory");
+        exit(1);
+        //return 1;
+    } 
+    Queue q= {
+        NULL,
+        NULL
+    };
+    for (unsigned i =0; i<v_number_global; i++){
+        marking[i] = none;
+    }
+    marking[index] = explored;
+    level[index] =0;
+    queue_push(&q,index);
+    IntNode* linked_list;
+    IntNode v,w;
+    while ( (q.top) != NULL)
+    {
+        v = queue_pop(&q);
+        linked_list=list[v.value];
+        printf("linked_list->value \n");
+        while (linked_list!= NULL){
+            if((marking[linked_list->value]) == none){
+                marking[linked_list->value] = v.value;
+                level[linked_list->value] = level[v.value] +1;
+                queue_push(&q,linked_list->value);
+            }
+            printf("Explorando %d ", linked_list->value);
+            linked_list = linked_list->next;
+        }
+    
+
+    }
+    
+    printf("Vetor de marcação [ \n");
+    for(unsigned i =0; i< v_number_global;i++){
+        printf("index:%u marcado:%u \n", i, marking[i]);
+    }
+    printf("]\n");
+    printf("Vetor de level [ \n");
+    for(unsigned i =0; i< v_number_global;i++){
+        printf("index:%u marcado:%u \n", i, level[i]);
+    }
+    printf("]\n");
+    unsigned* array[2] = {marking, level};
+    return array;
+    
+};
+
+unsigned** bfs_matrix(char** matrix, unsigned index){ 
+    //Define NULL como 2^32
+    //E marcado como (2^32 -1)
+    //tendo em vista que nenhum grafo tem perto de 4 bilhões de vertices, isso não é um problema
+    unsigned* marking;
+    unsigned* level;
+    unsigned none = ~(0x0);
+    unsigned explored = ~(0x1);
+    if((marking = (unsigned * ) malloc(v_number_global*sizeof(unsigned))) == NULL){
+        printf("Out of memory");
+        exit(1);
+        //return 1;
+    } 
+    if((level = (unsigned * ) calloc(v_number_global,sizeof(unsigned))) == NULL){
+        printf("Out of memory");
+        exit(1);
+        //return 1;
+    } 
+    Queue q= {
+        NULL,
+        NULL
+    };
+    for (unsigned i =0; i<v_number_global; i++){
+        marking[i] = none;
+    }
+
+    marking[index] = explored;
+    level[index] =0;
+    queue_push(&q,index);
+    IntNode v,w;
+    register unsigned j;
+    while ( (q.top) != NULL)
+    {
+        v = queue_pop(&q);
+        j= v.value;
+        for(unsigned i =0 ; i< j; i++){
+            if((Matrix(i,j)) == 1){
+                if(marking[i] == none){
+                    marking[i] = j;
+                    level[i] = level[j] +1;
+                    queue_push(&q,i);
+                }
+            }
+        }
+        for(unsigned i =(j+1); i< v_number_global;i++){
+            if((Matrix(j,i)) == 1){
+                if(marking[i] == none){
+                    marking[i] = j;
+                    level[i] = level[j] +1;
+                    queue_push(&q,i);
+                }
+            }
+        }   
+    }
+    printf("Vetor de marcação [ \n");
+    for(unsigned i =0; i< v_number_global;i++)
+        printf("index:%u marcado:%u \n", i, marking[i]);
+    printf("]\n");
+    printf("Vetor de level [ \n");
+    for(unsigned i =0; i< v_number_global;i++)
+        printf("index:%u marcado:%u \n", i, level[i]);
+    printf("]\n");
+    unsigned* array[2] = {marking, level};
+    return array;
+    
+}
