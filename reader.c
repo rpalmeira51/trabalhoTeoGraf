@@ -48,7 +48,7 @@ typedef struct queue
 IntNode queue_pop(Queue* q);
 void queue_push(Queue* q, unsigned index);
 void print_queue(Queue* q);
-char** readMatrix(unsigned long v_number);
+char** readMatrix(unsigned v_number);
 IntNode** read_list_int(unsigned long v_number);
 void print_list_int(IntNode** p);
 void print_matrix(char** matrix);
@@ -87,13 +87,17 @@ int main (int argc,char** argv ){
             {
             case 'm':
                 state =0;
+                start = clock();
                 matrix= readMatrix(v_number_global);
+                end = clock();
+                bfs_matrix_t = ((double) (end - start)) / CLOCKS_PER_SEC;
+                printf("Tempo da bfs %f \n" ,bfs_matrix_t);
                 //print_matrix(matrix);
                 break;
             case 'l':
                 state =1;
                 list = read_list_int(v_number_global);
-                print_list_int(list);
+                //print_list_int(list);
                 break;
             default:
                 printf("Invalid argument");
@@ -268,25 +272,39 @@ void print_matrix(char** matrix){
     } 
 }
 
-char** readMatrix(unsigned long v_number){
+char** readMatrix(unsigned v_number){
     //aloca Espaço para matriz
+
+    printf("%u", v_number);
+    
     char** p;
-    if((p = (char** )calloc(v_number, sizeof(char* [v_number]))) == NULL){
-        printf("Fatal Error");
+    if((p = (char** ) calloc(v_number, sizeof(char*))) == NULL){
+        printf("Fatal Error FLAG\n");
         exit(1);
     }
-
+    for(unsigned i = 0;i<v_number;i++){
+        if((p[i] = (char *) calloc(v_number,sizeof(char))) == NULL){
+            printf("Fatal Error Out of Memory");
+            exit(1);
+        }
+    }
+    /*
     for(unsigned i = 1; i<=(v_number) ; i++){
-        p[i-1] = (char *) calloc((v_number-i), sizeof(char));
+        if((p[i-1] = (char *) calloc((v_number-i), sizeof(char))) == NULL){
+            printf("Fatal Error FLAG2\n");
+            exit(1);
+        }
         //printf("Flag %d \n" ,p[i][1]);
     }
+    */
     int a,b;
     while((fscanf(fp,"%u %u",&a,&b)) != EOF){
-       // printf("a= %d b = %d\n",a,b);
-        (a<=b) ? (p[a][b-a-1] =1 ) : (p[b][a-b-1]=1); 
+        //printf("a= %d b = %d %d\n ",a,b,v_number);
+        p[a-1][b-1] =1;
+        p[b-1][a-1] =1; 
         array_number++;
-            
     }
+    
     return p;
 
 }
@@ -482,20 +500,20 @@ unsigned** bfs_list(IntNode** list, unsigned index){
     {
         v = queue_pop(&q);
         linked_list=list[v.value];
-        printf("linked_list->value \n");
+        //printf("linked_list->value \n");
         while (linked_list!= NULL){
             if((marking[linked_list->value]) == none){
                 marking[linked_list->value] = v.value;
                 level[linked_list->value] = level[v.value] +1;
                 queue_push(&q,linked_list->value);
             }
-            printf("Explorando %d ", linked_list->value);
+            //printf("Explorando %d ", linked_list->value);
             linked_list = linked_list->next;
         }
     
 
     }
-    
+    /*
     printf("Vetor de marcação [ \n");
     for(unsigned i =0; i< v_number_global;i++){
         printf("index:%u marcado:%u \n", i, marking[i]);
@@ -505,12 +523,13 @@ unsigned** bfs_list(IntNode** list, unsigned index){
     for(unsigned i =0; i< v_number_global;i++){
         printf("index:%u marcado:%u \n", i, level[i]);
     }
-    printf("]\n");
+    printf("]\n");*/
     unsigned** array;
     if((array = (unsigned ** ) malloc(v_number_global*sizeof(unsigned)*2)) == NULL){
         printf("Out of memory");
         exit(1);
     } 
+    
     array[0]=  marking; 
     array[1]=  level;
     return array;
@@ -548,28 +567,21 @@ unsigned** bfs_matrix(char** matrix, unsigned index){
     queue_push(&q,index);
     IntNode v,w;
     register unsigned j;
+    char* row;
     while ( (q.top) != NULL)
     {
         v = queue_pop(&q);
         j= v.value;
-        for(unsigned i =0 ; i< j; i++){
-            if((Matrix(i,j)) == 1){
+        row = matrix[j];
+        for(unsigned i =0 ; i< v_number_global; i++){
+            if((row[i]) == 1){
                 if(marking[i] == none){
                     marking[i] = j;
                     level[i] = level[j] +1;
                     queue_push(&q,i);
                 }
             }
-        }
-        for(unsigned i =(j+1); i< v_number_global;i++){
-            if((Matrix(j,i)) == 1){
-                if(marking[i] == none){
-                    marking[i] = j;
-                    level[i] = level[j] +1;
-                    queue_push(&q,i);
-                }
-            }
-        }   
+        }  
     }
     /*
     printf("Vetor de marcação [ \n");
