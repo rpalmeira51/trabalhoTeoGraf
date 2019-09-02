@@ -45,27 +45,27 @@ typedef struct queue
 } Queue;
 
 //Prototipos de Funções
-IntNode queue_pop(Queue* q);
-void queue_push(Queue* q, unsigned index);
+static inline IntNode queue_pop(Queue* q);
+static inline void queue_push(Queue* q, unsigned index);
 void print_queue(Queue* q);
 char** readMatrix(unsigned v_number);
 IntNode** read_list_int(unsigned v_number);
 void print_list_int(IntNode** p);
 void print_matrix(char** matrix);
-unsigned**  bfs_list(IntNode** list, unsigned index);
+static inline unsigned** bfs_list(IntNode** list, unsigned index);
 unsigned**  bfs_matrix(char** matrix, unsigned index);
 unsigned shortest_path(unsigned v2,unsigned* marking);
 unsigned diameter_list(IntNode** list);
 unsigned diameter_matrix(char** matrix);
 unsigned* degree_find_matrix(char** matrix);
 unsigned* degree_find_list(IntNode** list);
-
+void free_matrix(char ** matrix);
+void free_list(IntNode** list);
 
 int main (int argc,char** argv ){
-    char s[50];
+    const char *s;
     char state;
-    printf("Input the name of the file: ");
-    scanf("%s",s);
+    s = "as_graph_clean.txt";
     fp=fopen(s, "r");
     fscanf(fp,"%u", &v_number_global);
     printf("%u\n",v_number_global);
@@ -80,15 +80,21 @@ int main (int argc,char** argv ){
     double diameter_list_t;
     double diameter_matrix_t;
     clock_t start,end;
-    matrix= readMatrix(v_number_global);
-    fclose(fp);
-    index = 2;
+    
+    state =1;
+    index =1;
+    list = read_list_int(v_number_global);
     start = clock();
-    bfs_matrix(matrix,index);
+    //bfs_list(list,index);
+    diameter_list(list);
     end = clock();
     bfs_matrix_t = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("Tempo do output BFS %f \n" ,bfs_matrix_t);
-    state =0;
+    printf("Tempo da bfs %f \n" ,bfs_matrix_t);
+    /*
+    state = 0;
+    matrix = readMatrix(v_number_global);
+    bfs_matrix(matrix,index);
+    */
     /*
     while(--argc>0 && (*++argv)[0] == '-'){
         while (c = *++argv[0]){
@@ -189,9 +195,6 @@ int main (int argc,char** argv ){
          fprintf(out,"Minimal Degree : %u \n",degree[0]);
          fprintf(out,"Maximal Degree : %u \n",degree[v_number_global-1]);
         fprintf(stdout,"Maximal Degree : %u \n",degree[v_number_global-1]);
-         for(unsigned i = 0; i<v_number_global;i++){
-            fprintf(out," %u, ",degree[i]);
-        }
          /*
         for ( unsigned i = 0; i < v_number_global; i++)
         {
@@ -215,9 +218,6 @@ int main (int argc,char** argv ){
         
         fprintf(out,"Minimal Degree : %u \n",degree[0]);
         fprintf(out,"Maximal Degree : %u \n",degree[v_number_global-1]);
-        for(unsigned i = 0; i<v_number_global;i++){
-            fprintf(out," %u, ",degree[i]);
-        }
         if(v_number_global%2){
             fprintf(out,"median : %u \n",degree[v_number_global/2]);
         }else{
@@ -227,13 +227,25 @@ int main (int argc,char** argv ){
         }
     }
     fclose(out);
-    free(matrix);
-    //free(list);//mudar que so livra o array
+    if(state)
+        free_list(list);
+    else 
+        free_matrix(matrix);
     return 0;
     
 }
 
-//Mudar 
+
+void free_matrix(char** matrix){
+    char** p;
+    char **size = matrix + v_number_global;
+    for ( p = matrix; p < size; p++)
+    {
+        free(*p);
+    }
+    free(matrix);
+}
+
 unsigned* degree_find_matrix(char** matrix){
     unsigned* degree_array;
     unsigned degree;
@@ -350,6 +362,15 @@ void sort_list(IntNode** list){
 
 }
 */
+void free_list(IntNode** list){
+    IntNode** p;
+    IntNode** size = list+v_number_global;
+    for(p = list;p<size;p++){
+
+    }
+}
+
+
 void print_list_int(IntNode** list){
     IntNode* index;
     unsigned int i;
@@ -391,7 +412,7 @@ IntNode** read_list_int(unsigned v_number){
     FILE* out;
     out = fopen("debug","w");
     while((fscanf(fp,"%u %u",&a,&b)) != EOF){
-        fprintf(out,"Fazendo a %d  e b %d %d \n",a,b,v_number);
+        //fprintf(out,"Fazendo a %d  e b %d %d \n",a,b,v_number);
         p[a-1] = put_inode(p[a-1],b-1);
         p[b-1] = put_inode(p[b-1],a-1);
         array_number++;
@@ -401,17 +422,11 @@ IntNode** read_list_int(unsigned v_number){
         //print_list_int(p[b]);
         //printf("Atualmente p[a] : %u e p[b]: %u \n", p[a]->value,p[b]->value);        
     }
-    IntNode** pointer2;
-    unsigned count=0;
-    for (pointer2 = p; pointer2< (p+5) ; pointer2++){
-        printf("pos %lu %p \n ", pointer2-p,*pointer2);
-    }
-    printf("count %d e v_number %d\n", count,v_number);
     return p;
 }
 
 // Dá pop na pilha
-IntNode queue_pop(Queue* q){
+static inline IntNode queue_pop(Queue* q){
     IntNode* p_v;
     IntNode vertice;
     p_v = q->top;
@@ -421,7 +436,7 @@ IntNode queue_pop(Queue* q){
     return (vertice);
 }
 
-void queue_push(Queue* q, unsigned index){
+static inline void queue_push(Queue* q, unsigned index){
     IntNode* last = q->rear;
     IntNode* new_pointer;
     if (new_pointer = (IntNode *) malloc(sizeof(IntNode))){
@@ -442,7 +457,6 @@ void queue_push(Queue* q, unsigned index){
         printf("Fatal error Out of memory");
         exit(1);
     }
-    
     
 }
 void print_queue(Queue* q){
@@ -473,18 +487,23 @@ unsigned shortest_path(unsigned v2,unsigned* marking){
 unsigned max_array(unsigned* array){
     unsigned* p ;
     register unsigned max = 0;
-    for(p = array; p< (array + v_number_global); p++) 
+    unsigned* size = (array + v_number_global);
+    for(p = array; p< size; p++) 
         max = (*p>max) ? *p :max;
     return max;
 }
 
+unsigned pseudo_diameter_list(IntNode** list){
+
+}
+
 unsigned diameter_list(IntNode** list){
-    unsigned none = ~(0x0);
+    //unsigned none = ~(0x0);
     unsigned d = 0;
     unsigned* level;
-    unsigned max_graph =0;
+    register unsigned max_graph =0;
     unsigned max =0 ;
-    for(unsigned i =0; i< v_number_global; i++){
+    for(register unsigned i =0; i< v_number_global; i++){
         level = (bfs_list(list,i))[1];
         max = max_array(level);
         max_graph = (max_graph<max) ? max: max_graph;
@@ -502,20 +521,21 @@ unsigned diameter_matrix(char** matrix){
         level = (bfs_matrix(matrix,i))[1];
         max = max_array(level);
         max_graph = (max_graph<max) ? max: max_graph;
+        printf("i %d",i);
     }
     printf("diameter %d\n",max_graph);
     return max_graph;
 
 }
 
-unsigned** bfs_list(IntNode** list, unsigned index){
+static inline unsigned** bfs_list(IntNode** list, unsigned index){
     //Define NULL como 2^32
     //E marcado como (2^32 -1)
     //tendo em vista que nenhum grafo tem perto de 4 bilhões de vertices, isso não é um problema
     unsigned* marking;
     unsigned* level;
-    unsigned none = ~(0x0);
-    unsigned explored = ~(0x1);
+    register const unsigned none = ~(0x0);
+    const unsigned explored = ~(0x1);
     if((marking = (unsigned * ) malloc(v_number_global*sizeof(unsigned))) == NULL){
         printf("Out of memory");
         exit(1);
@@ -566,13 +586,13 @@ unsigned** bfs_list(IntNode** list, unsigned index){
     for(unsigned i =0; i< v_number_global;i++){
         printf("index:%u marcado:%u \n", i, level[i]);
     }
-    printf("]\n");*/
+    printf("]\n");
+    */
     unsigned** array;
     if((array = (unsigned ** ) malloc(v_number_global*sizeof(unsigned)*2)) == NULL){
         printf("Out of memory");
         exit(1);
     } 
-    
     array[0]=  marking; 
     array[1]=  level;
     return array;
@@ -626,7 +646,7 @@ unsigned** bfs_matrix(char** matrix, unsigned index){
             }
         }  
     }
-    /*
+    
     printf("Vetor de marcação [ \n");
     for(unsigned i =0; i< v_number_global;i++)
         printf("index:%u marcado:%u \n", i, marking[i]);
@@ -635,7 +655,7 @@ unsigned** bfs_matrix(char** matrix, unsigned index){
     for(unsigned i =0; i< v_number_global;i++)
         printf("index:%u marcado:%u \n", i, level[i]);
     printf("]\n");
-    */
+    
     unsigned** array;
     if((array = (unsigned ** ) malloc(v_number_global*sizeof(unsigned)*2)) == NULL){
         printf("Out of memory");

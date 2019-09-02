@@ -134,37 +134,49 @@ int cmpfunc (const void * a, const void * b){
         return r;
         
 }
-/*
+
 IntNode* merge(IntNode* start1,IntNode* start2,IntNode* end1,IntNode* end2){
     IntNode* start = start1;
     IntNode* current = start;
     IntNode*end = end2;
     unsigned temp;
-    IntNode* temo_s1,* temp_s2;
+    IntNode* last_p,* temp_s2;
     IntNode* teste = head;
-    while (start1 && start2)
-    {
-        
-       // printf("Ponteiros start1:%p start2:%p end1:%p end2:%p\n",start1,start2,end1,end2->next);
-        printf("\nstart 1 %u end 1 %u start2 %u end2 %u\n", start1->value,end1->value,start2->value,end2->value);
-        if(start1->value > start2->value ){
+    last_p = start;
+    if(start1->value > start2->value ){
             printf("FLAG do temp");
             temp = start1->value;
             start1->value = start2->value;
             start2->value = temp;
             printf("start 1 v: %u start 2 v:%u",start1->value,start2->value);
+    }
+    start1 = start1->next;
+    while (start1 && start2)
+    {
+        
+       // printf("Ponteiros start1:%p start2:%p end1:%p end2:%p\n",start1,start2,end1,end2->next);
+        if(start1->value > start2->value){
+            last_p = start2;
+            start2 = start2->next;
+        }else{
+            last_p = start1;
+            start1 = start1->next;
         }
+        
+        /*
+        printf("\nstart 1 %u end 1 %u start2 %u end2 %u\n", start1->value,end1->value,start2->value,end2->value);
+        
         temo_s1 = start1->next;
         temp_s2 = start2->next;
         start1 = temo_s1;
         start2= temp_s2; 
-        /*
+        
         temp_p = start2->next;
         start2->next = start1->next;
         start1->next = start2;
         start1 = start2;
         start2 = temp_p;
-        
+        */
         
     }
     
@@ -225,7 +237,7 @@ void msort(IntNode* v){
         }
     }
 }
-*/
+
 
 IntNode* insert_list(unsigned value){
     IntNode * new_node;
