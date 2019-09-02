@@ -49,7 +49,7 @@ IntNode queue_pop(Queue* q);
 void queue_push(Queue* q, unsigned index);
 void print_queue(Queue* q);
 char** readMatrix(unsigned v_number);
-IntNode** read_list_int(unsigned long v_number);
+IntNode** read_list_int(unsigned v_number);
 void print_list_int(IntNode** p);
 void print_matrix(char** matrix);
 unsigned**  bfs_list(IntNode** list, unsigned index);
@@ -75,12 +75,21 @@ int main (int argc,char** argv ){
     unsigned index;
     unsigned** bfs_return;
     unsigned v;
-
-    clock_t start,end;
     double bfs_list_t;
     double bfs_matrix_t;
     double diameter_list_t;
     double diameter_matrix_t;
+    clock_t start,end;
+    matrix= readMatrix(v_number_global);
+    fclose(fp);
+    index = 2;
+    start = clock();
+    bfs_matrix(matrix,index);
+    end = clock();
+    bfs_matrix_t = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Tempo do output BFS %f \n" ,bfs_matrix_t);
+    state =0;
+    /*
     while(--argc>0 && (*++argv)[0] == '-'){
         while (c = *++argv[0]){
             switch (c)
@@ -106,6 +115,7 @@ int main (int argc,char** argv ){
             }
         }
     }
+    fclose(fp);
     printf("Insira o próximo comando ");
     scanf("%s", s);
     while(strcmp(s,"exit")){
@@ -163,16 +173,25 @@ int main (int argc,char** argv ){
         printf("Insert next command ");
         scanf("%s", s);
     };
-    fclose(fp);
+    */
     FILE* out;
     out = fopen("output","w");
     fprintf(out,"Number of Vertices : %u \n",v_number_global);
     fprintf(out,"Number of Edges : %lu \n",array_number);
     unsigned* degree;
     if(state){
-         degree = degree_find_list(list);
+        start = clock();
+        degree = degree_find_list(list);
+        end = clock();
+        bfs_matrix_t = ((double) (end - start)) / CLOCKS_PER_SEC;
+        printf("Tempo do output %f \n" ,bfs_matrix_t);
+        degree = degree_find_list(list);
          fprintf(out,"Minimal Degree : %u \n",degree[0]);
          fprintf(out,"Maximal Degree : %u \n",degree[v_number_global-1]);
+        fprintf(stdout,"Maximal Degree : %u \n",degree[v_number_global-1]);
+         for(unsigned i = 0; i<v_number_global;i++){
+            fprintf(out," %u, ",degree[i]);
+        }
          /*
         for ( unsigned i = 0; i < v_number_global; i++)
         {
@@ -188,9 +207,17 @@ int main (int argc,char** argv ){
 
          }
     }else{
+        start = clock();
         degree =degree_find_matrix(matrix);
+        end = clock();
+        bfs_matrix_t = ((double) (end - start)) / CLOCKS_PER_SEC;
+        printf("Tempo do output %f \n" ,bfs_matrix_t);
+        
         fprintf(out,"Minimal Degree : %u \n",degree[0]);
         fprintf(out,"Maximal Degree : %u \n",degree[v_number_global-1]);
+        for(unsigned i = 0; i<v_number_global;i++){
+            fprintf(out," %u, ",degree[i]);
+        }
         if(v_number_global%2){
             fprintf(out,"median : %u \n",degree[v_number_global/2]);
         }else{
@@ -201,35 +228,34 @@ int main (int argc,char** argv ){
     }
     fclose(out);
     free(matrix);
-    free(list);//mudar que so livra o array
+    //free(list);//mudar que so livra o array
     return 0;
     
 }
 
-
+//Mudar 
 unsigned* degree_find_matrix(char** matrix){
     unsigned* degree_array;
-    if((degree_array = (unsigned * )malloc(sizeof(unsigned)*v_number_global)) == NULL){
+    unsigned degree;
+    unsigned max_degree = ~(0x0);
+    if((degree_array = (unsigned * )malloc(v_number_global*sizeof(unsigned))) == NULL){
         printf("Out of memory");
         exit(1);
     }
-    unsigned degree;
-    for(unsigned j = 0; j<v_number_global; j++){
+    
+    for(register unsigned j = 0; j<v_number_global; j++){
         degree =0;
-            for(unsigned i =0 ; i< j; i++){
-                if((Matrix(i,j)) == 1){
-                    degree++;
-                }
+        for(unsigned i =0; i<v_number_global;i++){
+            //printf(" linha i%d coluna j%d %d\n",j,i,matrix[j][i]);
+            if(matrix[j][i]==1){
+                degree++;
             }
-            for(unsigned i =(j+1); i< v_number_global;i++){
-                if((Matrix(j,i)) == 1){
-                    degree++;
-                }
-            }
+        }   
         degree_array[j] = degree;
     }
     int cmpfunc (const void * a, const void * b);
     qsort(degree_array,v_number_global,sizeof(unsigned),cmpfunc);
+    //printf("max degree %d\n",max_degree);
     return degree_array;
 }
 
@@ -274,16 +300,14 @@ void print_matrix(char** matrix){
 
 char** readMatrix(unsigned v_number){
     //aloca Espaço para matriz
-
-    printf("%u", v_number);
     
     char** p;
-    if((p = (char** ) calloc(v_number, sizeof(char*))) == NULL){
+    if((p = (char** ) calloc(v_number_global, sizeof(char*))) == NULL){
         printf("Fatal Error FLAG\n");
         exit(1);
     }
     for(unsigned i = 0;i<v_number;i++){
-        if((p[i] = (char *) calloc(v_number,sizeof(char))) == NULL){
+        if((p[i] = (char *) calloc(v_number_global,sizeof(char))) == NULL){
             printf("Fatal Error Out of Memory");
             exit(1);
         }
@@ -298,13 +322,25 @@ char** readMatrix(unsigned v_number){
     }
     */
     int a,b;
+    unsigned count=0;
+    unsigned count2=0;
     while((fscanf(fp,"%u %u",&a,&b)) != EOF){
         //printf("a= %d b = %d %d\n ",a,b,v_number);
+        /*
+        if((a) == 1 && (b) == 22){
+            printf(" a %u e b %u\n",a,b);
+        }
+        if(a == 1){
+            count++;
+            if(p[a-1][b-1]== 1){
+                printf("Matrix %d a %d e b %d",p[a-1][b-1],a,b);
+            }
+        }
+        */
         p[a-1][b-1] =1;
         p[b-1][a-1] =1; 
         array_number++;
     }
-    
     return p;
 
 }
@@ -347,15 +383,17 @@ IntNode* put_inode(IntNode* p ,unsigned int value){
      
 }
 
-IntNode** read_list_int(unsigned long v_number){
+IntNode** read_list_int(unsigned v_number){
     IntNode** p;
     p = (IntNode **) calloc(v_number,sizeof(IntNode *));
     IntNode** pointer;
     unsigned int a,b;
+    FILE* out;
+    out = fopen("debug","w");
     while((fscanf(fp,"%u %u",&a,&b)) != EOF){
-        //printf("Fazendo a %d  e b %d \n",a,b);
-        p[a] = put_inode(p[a],b);
-        p[b] = put_inode(p[b],a);
+        fprintf(out,"Fazendo a %d  e b %d %d \n",a,b,v_number);
+        p[a-1] = put_inode(p[a-1],b-1);
+        p[b-1] = put_inode(p[b-1],a-1);
         array_number++;
         //printf("Index %d ",a);
         //print_list_int(p[a]);
@@ -363,7 +401,12 @@ IntNode** read_list_int(unsigned long v_number){
         //print_list_int(p[b]);
         //printf("Atualmente p[a] : %u e p[b]: %u \n", p[a]->value,p[b]->value);        
     }
-    
+    IntNode** pointer2;
+    unsigned count=0;
+    for (pointer2 = p; pointer2< (p+5) ; pointer2++){
+        printf("pos %lu %p \n ", pointer2-p,*pointer2);
+    }
+    printf("count %d e v_number %d\n", count,v_number);
     return p;
 }
 

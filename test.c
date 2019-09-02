@@ -32,6 +32,7 @@ typedef struct stack
     IntNode* top;
 }Stack;
 
+IntNode* head = NULL;
 
 IntNode stack_pop(Stack* stack){ 
     IntNode* v_p;
@@ -133,6 +134,109 @@ int cmpfunc (const void * a, const void * b){
         return r;
         
 }
+/*
+IntNode* merge(IntNode* start1,IntNode* start2,IntNode* end1,IntNode* end2){
+    IntNode* start = start1;
+    IntNode* current = start;
+    IntNode*end = end2;
+    unsigned temp;
+    IntNode* temo_s1,* temp_s2;
+    IntNode* teste = head;
+    while (start1 && start2)
+    {
+        
+       // printf("Ponteiros start1:%p start2:%p end1:%p end2:%p\n",start1,start2,end1,end2->next);
+        printf("\nstart 1 %u end 1 %u start2 %u end2 %u\n", start1->value,end1->value,start2->value,end2->value);
+        if(start1->value > start2->value ){
+            printf("FLAG do temp");
+            temp = start1->value;
+            start1->value = start2->value;
+            start2->value = temp;
+            printf("start 1 v: %u start 2 v:%u",start1->value,start2->value);
+        }
+        temo_s1 = start1->next;
+        temp_s2 = start2->next;
+        start1 = temo_s1;
+        start2= temp_s2; 
+        /*
+        temp_p = start2->next;
+        start2->next = start1->next;
+        start1->next = start2;
+        start1 = start2;
+        start2 = temp_p;
+        
+        
+    }
+    
+    while(teste != NULL){
+        printf("Valor teste v:%u \n", teste->value);
+        teste = teste->next;
+    }
+    return next_elment;
+}
+
+void msort(IntNode* v){
+    int exp;
+    IntNode* start1, *start2, *end1,*end2;
+    IntNode* p = v;
+    int count =0;
+    unsigned temp;
+    while(p->next){
+            //printf("p : %p e p->nex %p",p,p->next);
+            printf("FLAG 3 \n");
+            if(p->value > p->next->value){
+                temp = p->value;
+                p->value = p->next->value;
+                p->next->value = temp;
+            }
+            count+= 2;
+            if(p->next->next)
+                p = p->next->next;
+            else 
+                break;
+    }
+    
+    printf("count %d",count);
+    int dis;
+    IntNode* pointer;
+    for (exp =2;exp <count;exp <<= 1){
+        pointer=v;
+        printf("Flag 1 v %u: \n",v->value);
+        while(pointer != NULL) {
+            printf("Flag 2\n");
+            start1 = pointer;
+            for(dis = exp; (dis>1) && (pointer->next);dis--){
+                pointer = pointer->next;
+            }
+            end1 = pointer;
+            pointer = pointer->next;
+            if(!pointer){
+                break;
+            }
+            start2 = pointer;
+            for(dis = exp; (dis>1) && (pointer->next);dis--){
+                pointer = pointer->next;
+            }
+            end2 = pointer;
+            printf("Mandando pro merge s1 %u s2 %u e1 %u e2 %u exp %d\n",start1->value,start2->value,end1->value,end2->value,exp);
+            pointer = merge(start1,start2,end1,end2);
+            
+                        
+        }
+    }
+}
+*/
+
+IntNode* insert_list(unsigned value){
+    IntNode * new_node;
+    new_node = (IntNode *) malloc(sizeof(IntNode));
+    new_node->value = value;
+    (head)? (new_node->next = head) :(new_node->next = NULL);
+    head = new_node;
+    return new_node;
+
+} 
+
 
 int main (){
     /*
@@ -144,59 +248,58 @@ int main (){
     unsigned array[10] = {1,2,4,5,6,8,20,90,44};
     unsigned m = max_array(array);
     printf(" olha o max %d \n",m);*/
-    unsigned array[100];
-    for(int i =0; i< 100; i++){
-        array[i] = rand()%100;
-    }
-
-    int cmpfunc (const void * a, const void * b);
-
-    qsort(array,100,sizeof(unsigned),cmpfunc);
-    printf("[ ");
-    for (int i =0; i<100;i++)
-        printf("%u, ", array[i]);
-    printf("]\n");
     /*
-    IntNode v = {
+    IntNode v1 = {
         3,
         NULL
     };
-    queue_push(&q, v);
-    v.value = 4;
-    queue_push(&q, v);
-    v.value = 5;
-    queue_push(&q, v);
-    v.value = 6;
-    queue_push(&q, v);
-    v.value = 7;
-    queue_push(&q, v);
-    v.value = 8;
-    queue_push(&q, v);
-    queue_pop(&q);
-    v.value = 9;
-    queue_push(&q, v);
-    print_queue(&q);
-    return 0;
-    unsigned v =3;
-    queue_push(&q, 3);
-    
-    unsigned v=3;
-    v = 4;
-    queue_push(&q, v);
-    
-    v= 5;
-    queue_push(&q, v);
-    v = 6;
-    queue_push(&q, v);
-    v = 7;
-    queue_push(&q, v);
-    v = 8;
-    queue_push(&q, v);
-    queue_pop(&q);
-    v = 9;
-    queue_push(&q, v);
-    print_queue(&q);
-    */
+    IntNode v2 = {
+        1,
+        &v1
+    };
+    IntNode v3 = {
+        7,
+        &v2
+    };
+    IntNode v4 = {
+        20,
+        &v3
+    };
+    IntNode v5 = {
+        15,
+        &v4
+    };
+    IntNode v6 = {
+        36,
+        &v5
+    };
+    IntNode v7 = {
+        39,
+        &v6
+    };
+    msort(&v7);
+    IntNode*p;
+    head = &v7;
+    for(p = head; p!=NULL;p = p->next){
+        printf("Valor %u  ",p->value);
+    }
+
+   */int a;
+    for(int i =0; i< 100;i++){
+        a= rand()%100;
+        insert_list(a);
+    }
+    IntNode* p;
+    printf("OLha a head crl %u",head->value);
+    for(p = head; p!=NULL;p = p->next){
+        printf("Valor %u  ",p->value);
+    }
+    msort(head);
+    for(p = head; p!=NULL;p = p->next){
+        printf("Valor %u  ",p->value);
+    }
+   
+    printf("\n");
     return 0;
 }
 
